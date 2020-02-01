@@ -1,5 +1,7 @@
 package com.zhp.lcmp.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zhp.lcmp.entity.UserEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -12,5 +14,5 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Mapper
-public interface UserDao {
+public interface UserDao extends BaseMapper<UserEntity> {
 }

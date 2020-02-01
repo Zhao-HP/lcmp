@@ -1,9 +1,8 @@
 package com.zhp.lcmp;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * 启动类
@@ -12,8 +11,8 @@ import org.springframework.context.annotation.ComponentScan;
  * @ClassName LcmpApplication
  * @date 2020/1/23 16:11
  */
-@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
-@ComponentScan(basePackages = {"com.zhp.lcmp.dao"})
+@SpringBootApplication()
+@MapperScan(basePackages = {"com.zhp.lcmp.dao"})
 public class LcmpApplication {
 
     public static void main(String[] args) {

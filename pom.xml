@@ -22,7 +22,7 @@
         <kisso.version>3.7.16-SNAPSHOT</kisso.version>
         <jedis.version>2.9.0</jedis.version>
         <swagger.version>2.9.2</swagger.version>
-        <swagger.ui.version>2.9.2</swagger.ui.version>
+        <swagger.ui.version>1.9.6</swagger.ui.version>
         <fastjson.version>1.2.58</fastjson.version>
         <httpcomponents.version>4.5.5</httpcomponents.version>
         <joda.time.version>2.10.1</joda.time.version>
@@ -40,10 +40,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- mybatis-plus工具依赖 -->
         <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>1.1.1</version>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mbp.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -75,8 +76,8 @@
         </dependency>
         <!-- swagger UI组件 -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>swagger-bootstrap-ui</artifactId>
             <version>${swagger.ui.version}</version>
         </dependency>
         <!-- json依赖 -->
@@ -120,15 +121,27 @@
             <version>3.0.10</version>
             <type>pom</type>
         </dependency>
-        <!-- mybatis-plus工具依赖 -->
+        <!-- p6spy 插件用于sql打印 -->
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>${mbp.version}</version>
+            <groupId>p6spy</groupId>
+            <artifactId>p6spy</artifactId>
+            <version>${spy.version}</version>
         </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources/</directory>
+                <includes>
+                    <include>mapper/*.xml</include>
+                    <include>**/*.yml</include>
+                    <include>**/*.yaml</include>
+                    <include>**/*.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
