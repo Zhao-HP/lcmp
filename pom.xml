@@ -16,6 +16,23 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <telot.version>0.0.1-SNAPSHOT</telot.version>
+        <mbp.version>3.3.0</mbp.version>
+        <spy.version>3.8.6</spy.version>
+        <kisso.version>3.7.16-SNAPSHOT</kisso.version>
+        <jedis.version>2.9.0</jedis.version>
+        <swagger.version>2.9.2</swagger.version>
+        <swagger.ui.version>2.9.2</swagger.ui.version>
+        <fastjson.version>1.2.58</fastjson.version>
+        <httpcomponents.version>4.5.5</httpcomponents.version>
+        <joda.time.version>2.10.1</joda.time.version>
+        <alibaba.druid.version>1.1.18</alibaba.druid.version>
+        <jira.client.version>0.6</jira.client.version>
+        <ziroom.message.client>2.2.4-RELEASE</ziroom.message.client>
+        <dom4j.version>1.6.1</dom4j.version>
+        <jaxen.version>1.1.6</jaxen.version>
+        <storage.version>1.3.1-RELEASE</storage.version>
+        <jdbc.version>5.1.48</jdbc.version>
     </properties>
 
     <dependencies>
@@ -23,7 +40,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>1.1.1</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -45,6 +66,65 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- swagger核心组件 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+        <!-- swagger UI组件 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger.ui.version}</version>
+        </dependency>
+        <!-- json依赖 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+        <!-- mybatis-plus工具依赖 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mbp.version}</version>
+        </dependency>
+        <!-- p6spy 插件用于sql打印 -->
+        <dependency>
+            <groupId>p6spy</groupId>
+            <artifactId>p6spy</artifactId>
+            <version>${spy.version}</version>
+        </dependency>
+        <!-- mysql jdbc -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${jdbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>${alibaba.druid.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <version>3.0.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.rocketmq</groupId>
+            <artifactId>rocketmq-all</artifactId>
+            <version>3.0.10</version>
+            <type>pom</type>
+        </dependency>
+        <!-- mybatis-plus工具依赖 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mbp.version}</version>
         </dependency>
     </dependencies>
 

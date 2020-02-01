@@ -1,0 +1,16 @@
+package com.zhp.lcmp.dao;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Component;
+
+/**
+ * 用户持久层接口
+ *
+ * @author ZhaoHP
+ * @ClassName UserDao
+ * @date 2020/1/23 11:41
+ */
+@Component
+@Mapper
+public interface UserDao {
+}
