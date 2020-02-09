@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
 /**
- * 用户持久层接口
+ * 用户相关操作的持久层接口
  *
  * @author ZhaoHP
  * @ClassName UserDao
