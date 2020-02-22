@@ -7,10 +7,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户相关操作的控制层
@@ -26,8 +23,8 @@ public class UserController {
     private IUserService userService;
 
     @ApiOperation("根据用户ID获得用户信息")
-    @GetMapping("/getUserInfo")
-    public RestResult getUserInfo(Integer userId) {
+    @PostMapping("/getUserInfo")
+    public RestResult getUserInfo(@RequestParam("userId") Integer userId) {
         return RestResult.fromData(userService.getUserInfo(userId));
     }
 
@@ -35,7 +32,8 @@ public class UserController {
     @ApiOperation("根据用户名或邮箱获得用户信息")
     @ApiImplicitParam(name = "account", value = "账号")
     @PostMapping("/getUserInfoByNameOrMail")
-    public RestResult getUserInfoByNameOrMail(String account) {
+    public RestResult getUserInfoByNameOrMail(@RequestParam("account") String account) {
+        System.out.println(account);
         return RestResult.fromData(userService.getUserInfoByNameOrMail(account));
     }
 
