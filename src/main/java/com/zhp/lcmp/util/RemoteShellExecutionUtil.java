@@ -18,11 +18,13 @@ import java.util.Vector;
 @Slf4j
 public class RemoteShellExecutionUtil {
 
-    private static Connection connection;
-    private static final long TIME_OUT = 20000;
+    private static Connection connection = null;
+    //在connection中打开一个新的会话
+    private static final long TIME_OUT = 100000000;
 
     private static void getConnection() {
         try {
+
             connection = new Connection("101.201.70.167", 22);
             connection.connect();
             boolean isAuthenticate = connection.authenticateWithPassword("root", "guduke0215.");
@@ -35,9 +37,9 @@ public class RemoteShellExecutionUtil {
     }
 
     private static void init() {
-        if (connection == null) {
-            getConnection();
-        }
+        log.info("初始化connection");
+        System.out.println(connection);
+        getConnection();
     }
 
     /**
@@ -134,15 +136,15 @@ public class RemoteShellExecutionUtil {
      *
      * @param cmds 要在linux上执行的指令
      */
-    public static String exec(String cmds) {
+    public static String exec(String cmds){
         InputStream stdOut = null;
         InputStream stdErr = null;
         int ret = -1;
         init();
         StringBuffer buffer = new StringBuffer();
+        Session session = null;
         try {
-            //在connection中打开一个新的会话
-            Session session = connection.openSession();
+            session = connection.openSession();
             //在远程服务器上执行linux指令
             session.execCommand(cmds);
             //指令执行结束后的输出
@@ -159,21 +161,16 @@ public class RemoteShellExecutionUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            connection.close();
+            if (session!= null){
+                session.close();
+            }
+            if (connection != null){
+                connection.close();
+            }
         }
 
         return buffer.toString();
     }
 
 
-    public static void main(String[] args) {
-        String exec = exec("df -h");
-        System.out.println(exec);
-        String[] split = exec.split("\n");
-        for (String s : split) {
-
-
-
-        }
-    }
 }
