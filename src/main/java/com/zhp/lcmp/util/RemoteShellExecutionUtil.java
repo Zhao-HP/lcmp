@@ -38,7 +38,6 @@ public class RemoteShellExecutionUtil {
 
     private static void init() {
         log.info("初始化connection");
-        System.out.println(connection);
         getConnection();
     }
 
@@ -150,7 +149,7 @@ public class RemoteShellExecutionUtil {
             //指令执行结束后的输出
             stdOut = new StreamGobbler(session.getStdout());
             BufferedReader br = new BufferedReader(new InputStreamReader(stdOut));
-            String line = br.readLine();
+            String line=null;
             while ((line = br.readLine()) != null) {
                 buffer.append(line).append("\n");
             }
@@ -162,14 +161,21 @@ public class RemoteShellExecutionUtil {
             e.printStackTrace();
         } finally {
             if (session!= null){
+                log.info("关闭Session");
                 session.close();
             }
             if (connection != null){
+                log.info("关闭Connection");
                 connection.close();
             }
         }
 
         return buffer.toString();
+    }
+
+    public static void main(String[] args) {
+        String exec = exec("yum -y install zopfli.x86_64");
+        System.out.println(exec);
     }
 
 

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhp.lcmp.entity.ServerInfoEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,6 +20,14 @@ import java.util.List;
 @Component
 public interface ServerInfoDao extends BaseMapper<ServerInfoEntity> {
 
-    List<ServerInfoEntity> getServerInfoList(Page<ServerInfoEntity> pagination,int userId);
+    /**
+     * 分页获得服务器列表
+     * @param pagination
+     * @param userId
+     * @param ipAddress
+     * @param info
+     * @return
+     */
+    List<ServerInfoEntity> getServerInfoList(@Param("page") Page<ServerInfoEntity> pagination,@Param("userId") int userId, @Param("ipAddress") String ipAddress, @Param("info") String info);
 
 }

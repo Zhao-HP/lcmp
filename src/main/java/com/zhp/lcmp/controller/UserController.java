@@ -5,7 +5,6 @@ import com.zhp.lcmp.service.IServerInfoService;
 import com.zhp.lcmp.service.IUserService;
 import com.zhp.lcmp.vo.RestResult;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,14 +54,4 @@ public class UserController {
         return null;
     }
 
-
-    @ApiOperation("根据用户ID获得该用户的服务器信息")
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = "userId", value = "用户ID")
-    )
-    @PostMapping("/getServerInfoByUid")
-    public RestResult getServerInfoByUid(@RequestParam("userId") int userId, @RequestParam("pageNum") Integer pageNum,
-                                         @RequestParam("pageSize") Integer pageSize) {
-        return RestResult.fromData(serverInfoService.getServerInfoByUid(userId, pageNum, pageSize));
-    }
 }
