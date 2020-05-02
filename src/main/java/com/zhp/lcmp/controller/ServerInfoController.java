@@ -1,16 +1,21 @@
 package com.zhp.lcmp.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.zhp.lcmp.entity.ServerInfoEntity;
 import com.zhp.lcmp.service.IServerInfoService;
+import com.zhp.lcmp.util.RequestUtil;
 import com.zhp.lcmp.vo.RestResult;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 服务器信息控制层
@@ -26,11 +31,6 @@ public class ServerInfoController {
     @Autowired
     private IServerInfoService serverInfoService;
 
-    /**
-     * 获得服务器上各个目录的使用情况
-     *
-     * @return
-     */
     @ApiOperation("获得服务器使用情况")
     @PostMapping("/getServerUsageInfo")
     public RestResult getServerUsageInfo(@RequestParam("serverId") int serverId) {
@@ -38,10 +38,14 @@ public class ServerInfoController {
         return RestResult.fromData(serverInfoService.getServerUsageInfo(serverId));
     }
 
-    @ApiOperation("根据用户ID获得该用户的服务器信息")
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = "userId", value = "用户ID")
-    )
+    @ApiOperation("根据用户ID分页获得该用户的服务器信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户ID"),
+            @ApiImplicitParam(name = "pageNum", value = "当前页数"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示的记录数"),
+            @ApiImplicitParam(name = "ipAddress", value = "IP地址"),
+            @ApiImplicitParam(name = "info", value = "服务器的描述信息")
+    })
     @PostMapping("/getServerInfoByUid")
     public RestResult getServerInfoByUid(@RequestParam("userId") int userId, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize,
                                          @RequestParam(name = "ipAddress", required = false) String ipAddress, @RequestParam(name = "info", required = false) String info) {
@@ -50,17 +54,23 @@ public class ServerInfoController {
 
     @ApiOperation("保存或者更新服务器信息")
     @PostMapping("/saveOrUpdateServerInfoById")
-    public RestResult saveOrUpdateServerInfoById(ServerInfoEntity serverInfoEntity) {
-        System.out.println(JSON.toJSONString(serverInfoEntity));
-        return serverInfoService.saveOrUpdateServerInfoById(serverInfoEntity);
+    public RestResult saveOrUpdateServerInfoById(ServerInfoEntity serverInfoEntity, HttpServletRequest request) {
+        Integer userId = RequestUtil.getUserId(request);
+        if(null != userId){
+            return serverInfoService.saveOrUpdateServerInfoById(serverInfoEntity);
+        }else{
+            return RestResult.fromErrorMessage("用户ID为空");
+        }
     }
 
     @ApiOperation("获得应用列表")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNum", value = "当前页数"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示的记录数"),
             @ApiImplicitParam(name = "status", value = "状态", dataType = "String")
     })
     @PostMapping("/getApplicationList")
-    public RestResult getApplicationList(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, @RequestParam("status") String status){
+    public RestResult getApplicationList(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, @RequestParam("status") String status) {
         return RestResult.fromData(serverInfoService.getApplicationListByStatus(pageNum, pageSize, status));
     }
 
@@ -69,7 +79,7 @@ public class ServerInfoController {
             @ApiImplicitParam(name = "packageName", value = "包名", dataType = "String")
     })
     @PostMapping("/installedApplication")
-    public RestResult installedApplication(@RequestParam("packageName") String packageName){
+    public RestResult installedApplication(@RequestParam("packageName") String packageName) {
         return serverInfoService.installedApplication(packageName);
     }
 
@@ -78,7 +88,7 @@ public class ServerInfoController {
             @ApiImplicitParam(name = "packageName", value = "包名", dataType = "String")
     })
     @PostMapping("/updateApplication")
-    public RestResult updateApplication(@RequestParam("packageName") String packageName){
+    public RestResult updateApplication(@RequestParam("packageName") String packageName) {
         return serverInfoService.updateApplication(packageName);
     }
 
@@ -87,7 +97,7 @@ public class ServerInfoController {
             @ApiImplicitParam(name = "packageName", value = "包名", dataType = "String")
     })
     @PostMapping("/removeApplication")
-    public RestResult removeApplication(@RequestParam("packageName") String packageName){
+    public RestResult removeApplication(@RequestParam("packageName") String packageName) {
         return serverInfoService.removeApplication(packageName);
     }
 
@@ -96,7 +106,14 @@ public class ServerInfoController {
             @ApiImplicitParam(name = "configCode", value = "配置码", dataType = "String")
     })
     @GetMapping("getConfigFileContext")
-    public RestResult getConfigFileContext(String configCode){
+    public RestResult getConfigFileContext(String configCode) {
         return null;
+    }
+
+    @ApiOperation("根据用户名，获得服务器列表")
+    @GetMapping("/getServerListByUserId")
+    public RestResult getServerListByUserId(HttpServletRequest request){
+        Integer userId = RequestUtil.getUserId(request);
+        return RestResult.fromData(serverInfoService.selectServerInfoListByUserId(userId));
     }
 }

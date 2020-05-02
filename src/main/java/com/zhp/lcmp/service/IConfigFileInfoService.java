@@ -60,4 +60,10 @@ public interface IConfigFileInfoService extends IService<ConfigFileInfoEntity> {
      */
     public boolean checkConfigCodeIsExist(Integer userId, String configCode);
 
+    /**
+     * 根据ID删除配置文件信息
+     * @param id
+     * @return
+     */
+    int deleteConfigFileInfoById(Integer id);
 }

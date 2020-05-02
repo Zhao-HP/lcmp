@@ -74,6 +74,11 @@ public class ConfigFileInfoServiceImpl extends ServiceImpl<ConfigFileInfoDao, Co
     }
 
     @Override
+    public int deleteConfigFileInfoById(Integer id) {
+        return configFileInfoDao.deleteById(id);
+    }
+
+    @Override
     public RestResult updateConfigFileInfo(ConfigFileInfoEntity configFileInfoEntity) {
         configFileInfoEntity.setUpdateTime(new Date());
         int result = configFileInfoDao.updateById(configFileInfoEntity);

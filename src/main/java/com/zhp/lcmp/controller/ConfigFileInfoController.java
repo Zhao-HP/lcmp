@@ -42,10 +42,14 @@ public class ConfigFileInfoController {
     public RestResult saveOrUpdateConfigFileInfo(ConfigFileInfoEntity configFileInfoEntity, HttpServletRequest request){
         Integer userId = RequestUtil.getUserId(request);
         configFileInfoEntity.setUserId(userId);
-        if (null == configFileInfoEntity.getId()){
-            return configFileInfoService.saveConfigFileInfo(configFileInfoEntity);
+        if (null != userId){
+            if (null == configFileInfoEntity.getId()){
+                return configFileInfoService.saveConfigFileInfo(configFileInfoEntity);
+            }else{
+                return configFileInfoService.updateConfigFileInfo(configFileInfoEntity);
+            }
         }else{
-            return configFileInfoService.updateConfigFileInfo(configFileInfoEntity);
+            return RestResult.fromErrorMessage("用户ID为空");
         }
     }
 
@@ -54,5 +58,24 @@ public class ConfigFileInfoController {
     public  RestResult getConfigFileListByPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, HttpServletRequest request){
         Integer userId = RequestUtil.getUserId(request);
         return RestResult.fromData(configFileInfoService.getConfigFileListByPage(pageNum, pageSize, userId));
+    }
+
+    @ApiOperation("根据ID删除配置文件信息")
+    @GetMapping("/deleteConfigFileInfoById")
+    public RestResult deleteConfigFileInfoById(@RequestParam("id")Integer id, HttpServletRequest request){
+
+        Integer userId = RequestUtil.getUserId(request);
+        if (null != userId){
+            int result = configFileInfoService.deleteConfigFileInfoById(id);
+            System.out.println(result);
+            if (result > 0){
+                return RestResult.fromData("删除成功");
+            }else{
+                return RestResult.fromErrorMessage("删除失败");
+            }
+        }else{
+            return RestResult.fromErrorMessage("用户ID为空");
+        }
+
     }
 }

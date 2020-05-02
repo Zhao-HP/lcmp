@@ -17,5 +17,7 @@
             INNER JOIN config_file_info cfi ON si.id = cfi.server_id
         WHERE
             si.user_id = #{userId}
+        ORDER BY
+            cfi.id DESC
     </select>
 </mapper>
