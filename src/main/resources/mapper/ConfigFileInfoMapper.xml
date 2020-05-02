@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhp.lcmp.dao.ConfigFileInfoDao">
+    <select id="getConfigFileListByPage" resultType="com.zhp.lcmp.vo.ConfigFileListVo">
+        SELECT
+            ip_address,
+            cfi.id,
+            config_desc,
+            config_code,
+            info ,
+            config_file_path,
+            cfi.create_time,
+            cfi.update_time
+        FROM
+            server_info si
+            INNER JOIN config_file_info cfi ON si.id = cfi.server_id
+        WHERE
+            si.user_id = #{userId}
+    </select>
+</mapper>

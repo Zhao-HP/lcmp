@@ -7,6 +7,7 @@ import com.zhp.lcmp.entity.ApplicationInfoEntity;
 import com.zhp.lcmp.entity.ServerInfoEntity;
 import com.zhp.lcmp.vo.RestResult;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,4 +78,12 @@ public interface IServerInfoService extends IService<ServerInfoEntity> {
      * @return
      */
     RestResult removeApplication(String packageName);
+
+    /**
+     * 根据用户名和IP获得对应的服务器信息
+     * @param userId
+     * @param ipAddress
+     * @return
+     */
+    List<ServerInfoEntity> selectServerInfoListByUserId(Integer userId);
 }

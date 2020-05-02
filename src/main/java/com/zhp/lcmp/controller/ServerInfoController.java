@@ -4,11 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.zhp.lcmp.entity.ServerInfoEntity;
 import com.zhp.lcmp.service.IServerInfoService;
 import com.zhp.lcmp.vo.RestResult;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
+@Api(value = "服务器模块", tags = {"服务器模块"})
 public class ServerInfoController {
 
     @Autowired
@@ -89,5 +89,14 @@ public class ServerInfoController {
     @PostMapping("/removeApplication")
     public RestResult removeApplication(@RequestParam("packageName") String packageName){
         return serverInfoService.removeApplication(packageName);
+    }
+
+    @ApiOperation("获取配置文件的内容")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "configCode", value = "配置码", dataType = "String")
+    })
+    @GetMapping("getConfigFileContext")
+    public RestResult getConfigFileContext(String configCode){
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package com.zhp.lcmp.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhp.lcmp.constant.Constant;
@@ -63,13 +64,15 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         Page<ApplicationInfoEntity> page = new Page<>(pageNum, pageSize);
         int start = (pageNum - 1) * pageSize;
         int end = pageNum * pageSize;
+        int forStart = 2;
         String cmd = Constant.YUM_LIST;
         if (Constant.APPLICATION_STATUS_INSTALLED.equals(status)) {
             cmd = Constant.YUM_LIST_INSTALLED;
         } else if (Constant.APPLICATION_STATUS_UPDATED.equals(status)) {
             cmd = Constant.YUM_LIST_CHECK_UPDATE;
+            forStart = 1;
         }
-        List<ApplicationInfoEntity> yumList = getApplicationList(cmd);
+        List<ApplicationInfoEntity> yumList = getApplicationList(cmd,forStart);
         List<ApplicationInfoEntity> result = new ArrayList<>();
         page.setTotal(yumList.size());
         for (int i = start; i < end && i < yumList.size(); i++) {
@@ -128,7 +131,14 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         }
     }
 
-    public boolean execYumCmd(String cmd) {
+    @Override
+    public List<ServerInfoEntity> selectServerInfoListByUserId(Integer userId) {
+        QueryWrapper<ServerInfoEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        return serverInfoDao.selectList(wrapper);
+    }
+
+    private boolean execYumCmd(String cmd) {
         log.info("更新、安装、保存命令的执行命令：\n" + cmd);
         String exec = RemoteShellExecutionUtil.exec(cmd);
         log.info("更新、安装、保存命令的执行结果：\n" + exec);
@@ -210,20 +220,19 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         return memoryUsageVo;
     }
 
-    public List<ApplicationInfoEntity> getApplicationList(String cmd) {
-        System.out.println(cmd);
+    public List<ApplicationInfoEntity> getApplicationList(String cmd, int start) {
         String exec = RemoteShellExecutionUtil.exec(cmd);
-        String[] split = exec.split("\n");
+        String[] split = exec.split(RE);
         List<ApplicationInfoEntity> applicationInfoEntityList = new ArrayList<>();
-        for (String s : split) {
-            String[] split1 = s.split(RE);
-            if (split1.length >= 3) {
-                ApplicationInfoEntity applicationInfoEntity = new ApplicationInfoEntity();
-                applicationInfoEntity.setApplicationName(split1[0]);
-                applicationInfoEntity.setVersion(split1[1]);
-                applicationInfoEntity.setOther(split1[2]);
-                applicationInfoEntityList.add(applicationInfoEntity);
+        for (int i = start; i < split.length; i+=3) {
+            if (i+3 > split.length){
+                break;
             }
+            ApplicationInfoEntity applicationInfoEntity = new ApplicationInfoEntity();
+            applicationInfoEntity.setApplicationName(split[i]);
+            applicationInfoEntity.setVersion(split[i+1]);
+            applicationInfoEntity.setOther(split[i+2]);
+            applicationInfoEntityList.add(applicationInfoEntity);
         }
         return applicationInfoEntityList;
     }
