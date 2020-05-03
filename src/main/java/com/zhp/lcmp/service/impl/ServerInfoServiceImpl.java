@@ -1,19 +1,24 @@
 package com.zhp.lcmp.service.impl;
 
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhp.lcmp.constant.Constant;
+import com.zhp.lcmp.dao.ConfigFileInfoDao;
 import com.zhp.lcmp.dao.ServerInfoDao;
 import com.zhp.lcmp.entity.ApplicationInfoEntity;
+import com.zhp.lcmp.entity.ConfigFileInfoEntity;
 import com.zhp.lcmp.entity.ServerInfoEntity;
 import com.zhp.lcmp.service.IServerInfoService;
+import com.zhp.lcmp.util.FileUtil;
 import com.zhp.lcmp.util.RemoteShellExecutionUtil;
 import com.zhp.lcmp.vo.DaskInfoVo;
 import com.zhp.lcmp.vo.MemoryUsageVo;
 import com.zhp.lcmp.vo.RestResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +38,8 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
 
     @Autowired
     private ServerInfoDao serverInfoDao;
+    @Autowired
+    private ConfigFileInfoDao configFileInfoDao;
 
     @Override
     public Page<ServerInfoEntity> getServerInfoByUid(int userId, Integer pageNum, Integer pageSize, String ipAddress, String info) {
@@ -72,7 +79,7 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
             cmd = Constant.YUM_LIST_CHECK_UPDATE;
             forStart = 1;
         }
-        List<ApplicationInfoEntity> yumList = getApplicationList(cmd,forStart);
+        List<ApplicationInfoEntity> yumList = getApplicationList(cmd, forStart);
         List<ApplicationInfoEntity> result = new ArrayList<>();
         page.setTotal(yumList.size());
         for (int i = start; i < end && i < yumList.size(); i++) {
@@ -136,6 +143,45 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         QueryWrapper<ServerInfoEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         return serverInfoDao.selectList(wrapper);
+    }
+
+    @Override
+    public String getConfigFileContent(String configCode, Integer userId, Integer serverId) {
+        Map<String, String> baseInfoMap = getBaseInfo(userId, configCode, serverId);
+        log.info("获得配置文件内容的基础信息：{}", JSON.toJSONString(baseInfoMap));
+        FileUtil.createDirs(baseInfoMap.get(Constant.BASE_INFO_LOCAL_DIR_PATH));
+        boolean result = RemoteShellExecutionUtil.copyFile(baseInfoMap.get(Constant.BASE_INFO_REMOTE_FILE_PATH), baseInfoMap.get(Constant.BASE_INFO_LOCAL_DIR_PATH));
+        if (!result){
+            return null;
+        }
+        return FileUtil.readFileContent(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH));
+    }
+
+    @Override
+    public void updateConfigFileContent(Integer userId, Integer serverId, String configCode, String fileContent) {
+        Map<String, String> baseInfoMap = getBaseInfo(userId, configCode, serverId);
+        log.info("更新配置文件内容的基础信息：{}", JSON.toJSONString(baseInfoMap));
+        FileUtil.wirteFileContent(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH), fileContent);
+        RemoteShellExecutionUtil.putFile(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH),baseInfoMap.get(Constant.BASE_INFO_REMOTE_DIR_PATH));
+    }
+
+    private Map<String, String> getBaseInfo(Integer userId, String configCode, Integer serverId) {
+        ConfigFileInfoEntity configFileInfoEntity = configFileInfoDao.selectFileInfoByUserIdAndCode(userId, configCode);
+        log.info("基本信息之配置文件信息：{}", JSON.toJSONString(configFileInfoEntity));
+        ServerInfoEntity serverInfoEntity = serverInfoDao.selectById(serverId);
+        log.info("基本信息之服务器信息：{}", JSON.toJSONString(serverInfoEntity));
+        String localDirPath = Constant.TMP_DIR + (null == configFileInfoEntity.getUserId() ? "common" : configFileInfoEntity.getUserId());
+        String localFilePath = localDirPath + "/" + StringUtils.substringAfterLast(configFileInfoEntity.getConfigFilePath(), "/");
+        String remoteDirPath = StringUtils.substringBeforeLast(configFileInfoEntity.getConfigFilePath(),"/");
+        Map<String, String> baseInfoMap = new HashMap<>(16);
+        baseInfoMap.put(Constant.BASE_INFO_IP_ADDRESS, serverInfoEntity.getIpAddress());
+        baseInfoMap.put(Constant.BASE_INFO_USERNAME, serverInfoEntity.getLoginName());
+        baseInfoMap.put(Constant.BASE_INFO_PASSWORD, serverInfoEntity.getLoginPwd());
+        baseInfoMap.put(Constant.BASE_INFO_REMOTE_DIR_PATH, remoteDirPath);
+        baseInfoMap.put(Constant.BASE_INFO_REMOTE_FILE_PATH, configFileInfoEntity.getConfigFilePath());
+        baseInfoMap.put(Constant.BASE_INFO_LOCAL_DIR_PATH, localDirPath);
+        baseInfoMap.put(Constant.BASE_INFO_LOCAL_FILE_PATH, localFilePath);
+        return baseInfoMap;
     }
 
     private boolean execYumCmd(String cmd) {
@@ -224,14 +270,14 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         String exec = RemoteShellExecutionUtil.exec(cmd);
         String[] split = exec.split(RE);
         List<ApplicationInfoEntity> applicationInfoEntityList = new ArrayList<>();
-        for (int i = start; i < split.length; i+=3) {
-            if (i+3 > split.length){
+        for (int i = start; i < split.length; i += 3) {
+            if (i + 3 > split.length) {
                 break;
             }
             ApplicationInfoEntity applicationInfoEntity = new ApplicationInfoEntity();
             applicationInfoEntity.setApplicationName(split[i]);
-            applicationInfoEntity.setVersion(split[i+1]);
-            applicationInfoEntity.setOther(split[i+2]);
+            applicationInfoEntity.setVersion(split[i + 1]);
+            applicationInfoEntity.setOther(split[i + 2]);
             applicationInfoEntityList.add(applicationInfoEntity);
         }
         return applicationInfoEntityList;
@@ -243,7 +289,7 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         System.out.println(exec.length());
         System.out.println(exec == null);
         String[] split = exec.split(RE);
-        if (exec == null || split.length < 1 || exec.length()==0) {
+        if (exec == null || split.length < 1 || exec.length() == 0) {
             return null;
         }
         System.out.println("split = " + split);
@@ -254,7 +300,4 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         return applicationInfoEntity;
     }
 
-    public static void main(String[] args) {
-
-    }
 }

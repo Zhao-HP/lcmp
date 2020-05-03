@@ -51,8 +51,8 @@ public class ConfigFileInfoServiceImpl extends ServiceImpl<ConfigFileInfoDao, Co
     public RestResult saveConfigFileInfo(ConfigFileInfoEntity configFileInfoEntity) {
         configFileInfoEntity.setCreateTime(new Date());
         configFileInfoEntity.setUpdateTime(new Date());
-        boolean result = checkConfigCodeIsExist(configFileInfoEntity.getUserId(), configFileInfoEntity.getConfigCode());
-        if (result){
+        ConfigFileInfoEntity result = selectFileInfoByUserIdAndCode(configFileInfoEntity.getUserId(), configFileInfoEntity.getConfigCode());
+        if (null != result){
             return RestResult.fromErrorMessage("保存失败，配置码已经存在，请重新输入配置码");
         }else{
             configFileInfoDao.insert(configFileInfoEntity);
@@ -61,16 +61,8 @@ public class ConfigFileInfoServiceImpl extends ServiceImpl<ConfigFileInfoDao, Co
     }
 
     @Override
-    public boolean checkConfigCodeIsExist(Integer userId, String configCode){
-        QueryWrapper<ConfigFileInfoEntity> wrapper= new QueryWrapper<>();
-        wrapper.eq("user_id", userId);
-        wrapper.eq("config_code",configCode);
-        List<ConfigFileInfoEntity> configFileInfoEntities = baseMapper.selectList(wrapper);
-        if (null == configFileInfoEntities || configFileInfoEntities.size() == 0){
-            return false;
-        }else{
-            return true;
-        }
+    public ConfigFileInfoEntity selectFileInfoByUserIdAndCode(Integer userId, String configCode){
+        return configFileInfoDao.selectFileInfoByUserIdAndCode(userId, configCode);
     }
 
     @Override

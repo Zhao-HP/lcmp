@@ -20,4 +20,16 @@
         ORDER BY
             cfi.id DESC
     </select>
+    <select id="selectFileInfoByUserIdAndCode" resultType="com.zhp.lcmp.entity.ConfigFileInfoEntity">
+        SELECT
+            *
+        FROM
+            config_file_info
+        WHERE
+            ( user_id IS NULL OR user_id = #{userId} )
+            AND config_code = #{configCode}
+        ORDER BY
+            id DESC
+            LIMIT 0,1
+    </select>
 </mapper>

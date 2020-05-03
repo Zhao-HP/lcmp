@@ -1,16 +1,9 @@
 package com.zhp.lcmp.util;
 
 import ch.ethz.ssh2.*;
-import com.alibaba.fastjson.JSON;
-import com.zhp.lcmp.entity.ApplicationInfoEntity;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
 import java.util.Vector;
 
 /**
@@ -23,7 +16,6 @@ import java.util.Vector;
 public class RemoteShellExecutionUtil {
 
     private static Connection connection = null;
-    //在connection中打开一个新的会话
     private static final long TIME_OUT = 100000000;
 
     private static void getConnection() {
@@ -75,7 +67,7 @@ public class RemoteShellExecutionUtil {
      * @param fileName   本地文件
      * @param remotePath 服务器目录
      */
-    public void putFile(String fileName, String remotePath) {
+    public static void putFile(String fileName, String remotePath) {
         init();
         SCPClient sc = new SCPClient(connection);
         try {
@@ -84,8 +76,11 @@ public class RemoteShellExecutionUtil {
             sc.put(fileName, remotePath);
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            connection.close();
         }
     }
+
 
     /**
      * 下载服务器文件到本地目录
@@ -93,16 +88,19 @@ public class RemoteShellExecutionUtil {
      * @param fileName  服务器文件
      * @param localPath 本地目录
      */
-    public void copyFile(String fileName, String localPath) {
+    public static boolean copyFile(String fileName, String localPath){
         init();
         SCPClient sc = new SCPClient(connection);
+        boolean result = true;
         try {
             sc.get(fileName, localPath);
         } catch (IOException e) {
-            e.printStackTrace();
+            result = false;
+        }finally {
+            connection.close();
+            return result;
         }
     }
-
 
     /**
      * 在远程LINUX服务器上，在指定目录下，删除指定文件
@@ -175,26 +173,6 @@ public class RemoteShellExecutionUtil {
         }
 
         return buffer.toString();
-    }
-
-    public static void main(String[] args) {
-        String cmd = exec("yum list installed");
-        String[] split = cmd.split("\\s+");
-        // System.out.println(JSON.toJSONString(split));
-        List<ApplicationInfoEntity> applicationInfoEntities = new ArrayList<>();
-        for (int i = 2; i < split.length; i+=3) {
-            if (i+3 > split.length){
-                break;
-            }
-            ApplicationInfoEntity applicationInfoEntity = new ApplicationInfoEntity();
-            applicationInfoEntity.setApplicationName(split[i]);
-            applicationInfoEntity.setVersion(split[i+1]);
-            applicationInfoEntity.setOther(split[i+2]);
-            System.out.println(JSON.toJSONString(applicationInfoEntity));
-            applicationInfoEntities.add(applicationInfoEntity);
-        }
-
-        System.out.println(JSON.toJSONString(applicationInfoEntities));
     }
 
 }

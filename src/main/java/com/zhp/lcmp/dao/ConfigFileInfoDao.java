@@ -27,4 +27,12 @@ public interface ConfigFileInfoDao extends BaseMapper<ConfigFileInfoEntity> {
      * @return
      */
     List<ConfigFileListVo> getConfigFileListByPage(Page page, @Param("userId") Integer userId);
+
+    /**
+     * 根据用户ID和配置码查询配置文件信息
+     * @param userId
+     * @param configCode
+     * @return
+     */
+    ConfigFileInfoEntity selectFileInfoByUserIdAndCode(@Param("userId") Integer userId, @Param("configCode") String configCode);
 }

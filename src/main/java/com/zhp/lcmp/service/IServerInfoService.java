@@ -82,8 +82,26 @@ public interface IServerInfoService extends IService<ServerInfoEntity> {
     /**
      * 根据用户名和IP获得对应的服务器信息
      * @param userId
-     * @param ipAddress
      * @return
      */
     List<ServerInfoEntity> selectServerInfoListByUserId(Integer userId);
+
+    /**
+     * 根据配置码获得配置文件内容
+     * @param configCode
+     * @param userId
+     * @param serverId
+     * @return
+     */
+    String getConfigFileContent(String configCode, Integer userId, Integer serverId);
+
+    /**
+     * 更新配置文件内容
+     * @param fileContent
+     * @param userId
+     * @param serverId
+     * @param configCode
+     */
+    void updateConfigFileContent(Integer userId,Integer serverId, String configCode, String fileContent);
+
 }
