@@ -1,5 +1,6 @@
 package com.zhp.lcmp;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.Connector;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -16,8 +17,9 @@ import org.springframework.context.annotation.Bean;
  * @ClassName LcmpApplication
  * @date 2020/1/23 16:11
  */
+@Slf4j
 @SpringBootApplication()
-@MapperScan(basePackages = {"com.zhp.lcmp.dao"})
+@MapperScan(value = {"com.zhp.lcmp.dao"})
 public class LcmpApplication {
 
     public static void main(String[] args) {
@@ -25,7 +27,7 @@ public class LcmpApplication {
     }
 
     @Bean
-    public ConfigurableServletWebServerFactory webServerFactory(){
+    public ConfigurableServletWebServerFactory webServerFactory() {
         TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
         factory.addConnectorCustomizers(new TomcatConnectorCustomizer() {
             @Override
@@ -35,4 +37,5 @@ public class LcmpApplication {
         });
         return factory;
     }
+
 }

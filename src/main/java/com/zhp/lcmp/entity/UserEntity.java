@@ -20,7 +20,7 @@ public class UserEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     *  主键
+     * 主键
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
@@ -36,4 +36,14 @@ public class UserEntity implements Serializable {
      * 用户邮箱
      */
     private String email;
+
+    /**
+     * 是否激活
+     */
+    private boolean isActivation;
+
+    /**
+     * 随机产生的验证码
+     */
+    private String identifyingCode;
 }

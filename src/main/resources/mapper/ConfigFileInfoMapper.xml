@@ -26,7 +26,7 @@
         FROM
             config_file_info
         WHERE
-            ( user_id IS NULL OR user_id = #{userId} )
+            (user_id IS NULL OR user_id = #{userId})
             AND config_code = #{configCode}
         ORDER BY
             id DESC

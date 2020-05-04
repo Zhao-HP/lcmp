@@ -83,8 +83,4 @@ public class FileUtil {
         }
     }
 
-    public static void main(String[] args) {
-        deleteFile("E:\\Code\\JAVA\\tmp\\null\\resolv.conf");
-    }
-
 }

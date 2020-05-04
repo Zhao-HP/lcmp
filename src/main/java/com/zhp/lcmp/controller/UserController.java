@@ -6,13 +6,11 @@ import com.zhp.lcmp.service.IUserService;
 import com.zhp.lcmp.vo.RestResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户相关操作的控制层
@@ -36,23 +34,50 @@ public class UserController {
         return RestResult.fromData(userService.getUserInfo(userId));
     }
 
+    @ApiOperation("激活用户账号")
+    @GetMapping("/activationAccount")
+    public String activationAccount(@RequestParam("userId") int userId, @RequestParam("identifyingCode") String identifyingCode) {
+        int result = userService.activationAccount(userId, identifyingCode);
+        if (result > 0){
+            return "激活成功";
+        }else{
+            return "激活失败";
+        }
+    }
 
     @ApiOperation("根据用户名或邮箱获得用户信息")
-    @ApiImplicitParam(name = "account", value = "账号")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "账号"),
+            @ApiImplicitParam(name = "password", value = "密码")
+    })
     @PostMapping("/getUserInfoByNameOrMail")
-    public RestResult getUserInfoByNameOrMail(@RequestParam("username") String username) {
-        UserEntity userInfoByNameOrMail = userService.getUserInfoByNameOrMail(username);
-        if (userInfoByNameOrMail != null){
-            return RestResult.fromData(userInfoByNameOrMail);
-        }else {
-            return RestResult.fromErrorMessage("没有此用户，请确认用户名是否正确");
+    public RestResult getUserInfoByNameOrMail(@RequestParam("account") String account, @RequestParam("password") String password) {
+        UserEntity userEntity = userService.getUserInfoByNameOrMail(account);
+        if (!userEntity.isActivation()) {
+            return RestResult.fromErrorMessage("当前用户未激活，请前往邮箱激活");
+        } else if (!password.equals(userEntity.getPassword())) {
+            return RestResult.fromErrorMessage("密码输入错误，请重新输入密码");
         }
+        return RestResult.fromData(userEntity);
+
     }
 
     @ApiOperation("用户注册")
     @PostMapping("/userRegister")
-    public RestResult userRegister(@RequestBody UserEntity userEntity) {
-        return null;
+    public RestResult userRegister( UserEntity userEntity) {
+        UserEntity userInfoByUsername = userService.getUserInfoByNameOrMail(userEntity.getUsername());
+        UserEntity userInfoByEmaiil = userService.getUserInfoByNameOrMail(userEntity.getEmail());
+        if (null != userInfoByUsername) {
+            return RestResult.fromErrorMessage("当前用户名已经存在，请重新输入");
+        }else if (null != userInfoByEmaiil){
+            return RestResult.fromErrorMessage("当前邮箱已经和其他用户名绑定，请重新输入");
+        }
+        int result = userService.userRegister(userEntity);
+        if (result > 0){
+            return RestResult.fromData("用户注册成功，请前往邮箱激活");
+        }else {
+            return RestResult.fromErrorMessage("注册失败");
+        }
     }
 
 }

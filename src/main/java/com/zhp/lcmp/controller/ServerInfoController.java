@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -102,27 +101,6 @@ public class ServerInfoController {
         return serverInfoService.removeApplication(packageName);
     }
 
-    @ApiOperation("获取配置文件的内容")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "configCode", value = "配置码", dataType = "String")
-    })
-    @GetMapping("/getConfigFileContent")
-    public RestResult getConfigFileContent(@RequestParam("configCode") String configCode, HttpServletRequest request) {
-        Integer userId = RequestUtil.getUserId(request);
-        Integer serverId = RequestUtil.getServerId(request);
-        if (null != userId) {
-            String configFileContent = serverInfoService.getConfigFileContent(configCode, userId, serverId);
-            log.info("配置文件内容：{}", configFileContent);
-            if (StringUtils.isNotEmpty(configFileContent)){
-                return RestResult.fromData(configFileContent);
-            }else{
-                return RestResult.fromErrorMessage("获得配置文件失败，请检查文件是否存在");
-            }
-        } else {
-            return RestResult.fromErrorMessage("用户ID为空");
-        }
-    }
-
     @ApiOperation("根据用户名，获得服务器列表")
     @GetMapping("/getServerListByUserId")
     public RestResult getServerListByUserId(HttpServletRequest request) {
@@ -130,16 +108,4 @@ public class ServerInfoController {
         return RestResult.fromData(serverInfoService.selectServerInfoListByUserId(userId));
     }
 
-    @ApiOperation("更新配置文件的内容")
-    @PostMapping("/updateConfigFileContent")
-    public RestResult updateConfigFileContent(String configCode, String fileContent, HttpServletRequest request) {
-        Integer userId = RequestUtil.getUserId(request);
-        Integer serverId = RequestUtil.getServerId(request);
-        if (null != userId && null!= serverId) {
-            serverInfoService.updateConfigFileContent(userId, serverId,configCode, fileContent);
-            return null;
-        } else {
-            return RestResult.fromErrorMessage("用户ID为空");
-        }
-    }
 }

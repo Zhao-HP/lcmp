@@ -2,8 +2,10 @@ package com.zhp.lcmp.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zhp.lcmp.dto.EasyConfigDto;
 import com.zhp.lcmp.entity.ConfigFileInfoEntity;
 import com.zhp.lcmp.vo.ConfigFileListVo;
+import com.zhp.lcmp.vo.DnsInfoVo;
 import com.zhp.lcmp.vo.RestResult;
 
 import java.util.List;
@@ -62,8 +64,45 @@ public interface IConfigFileInfoService extends IService<ConfigFileInfoEntity> {
 
     /**
      * 根据ID删除配置文件信息
+     *
      * @param id
      * @return
      */
     int deleteConfigFileInfoById(Integer id);
+
+    /**
+     * 获得服务器上的DNS列表
+     *
+     * @param configCode
+     * @param serverId
+     * @return
+     */
+    List<DnsInfoVo> getDnsInfoListByServerId(String configCode, Integer serverId);
+
+    /**
+     * 根据配置码获得配置文件内容
+     *
+     * @param configCode
+     * @param userId
+     * @param serverId
+     * @return
+     */
+    String readConfigFileContent(String configCode, Integer userId, Integer serverId);
+
+    /**
+     * 更新配置文件内容
+     *
+     * @param fileContent
+     * @param userId
+     * @param serverId
+     * @param configCode
+     */
+    void updateConfigFileContent(Integer userId, Integer serverId, String configCode, String fileContent);
+
+    /**
+     * 更新服务器上DNS配置文件
+     * @param serverId
+     * @param easyConfigDto
+     */
+    void updateDnsInfoListByServerId(Integer serverId, EasyConfigDto easyConfigDto);
 }

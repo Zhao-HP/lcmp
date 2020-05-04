@@ -45,7 +45,7 @@ public class ConfigFileInfoEntity {
     /**
      * 简易按钮是否可用
      */
-    private boolean easyBtnIsDisable;
+    private Boolean easyBtnIsDisable;
     /**
      * 配置文件按钮是否可用
      */
