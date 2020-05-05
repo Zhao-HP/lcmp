@@ -1,6 +1,7 @@
 package com.zhp.lcmp.service.impl;
 
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -63,7 +64,7 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
     }
 
     @Override
-    public Page<ApplicationInfoEntity> getApplicationListByStatus(int pageNum, int pageSize, String status) {
+    public Page<ApplicationInfoEntity> getApplicationListByStatus(int pageNum, int pageSize, String status, int serverId) {
         Page<ApplicationInfoEntity> page = new Page<>(pageNum, pageSize);
         int start = (pageNum - 1) * pageSize;
         int end = pageNum * pageSize;
@@ -75,7 +76,7 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
             cmd = Constant.YUM_LIST_CHECK_UPDATE;
             forStart = 1;
         }
-        List<ApplicationInfoEntity> yumList = getApplicationList(cmd, forStart);
+        List<ApplicationInfoEntity> yumList = getApplicationList(cmd, forStart, serverId);
         List<ApplicationInfoEntity> result = new ArrayList<>();
         page.setTotal(yumList.size());
         for (int i = start; i < end && i < yumList.size(); i++) {
@@ -86,13 +87,13 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
     }
 
     @Override
-    public RestResult installedApplication(String packageName) {
-        ApplicationInfoEntity applicationInfoEntity = existApplicationInstalled(packageName);
+    public RestResult installedApplication(String packageName, int serverId) {
+        ApplicationInfoEntity applicationInfoEntity = existApplicationInstalled(packageName,serverId);
         if (applicationInfoEntity != null) {
             return RestResult.fromErrorMessage("应用已经安装，请勿重新安装");
         } else {
             String cmd = "yum -y install " + packageName;
-            boolean result = execYumCmd(cmd);
+            boolean result = execYumCmd(cmd,serverId);
             if (result) {
                 return RestResult.fromData("安装成功");
             } else {
@@ -102,13 +103,13 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
     }
 
     @Override
-    public RestResult updateApplication(String packageName) {
-        ApplicationInfoEntity applicationInfoEntity = existApplicationInstalled(packageName);
+    public RestResult updateApplication(String packageName, int serverId) {
+        ApplicationInfoEntity applicationInfoEntity = existApplicationInstalled(packageName,serverId);
         if (applicationInfoEntity == null) {
             return RestResult.fromErrorMessage("应用未安装，请选择安装");
         } else {
             String cmd = "yum -y update " + packageName;
-            boolean result = execYumCmd(cmd);
+            boolean result = execYumCmd(cmd,serverId);
             System.out.println(result);
             if (result) {
                 return RestResult.fromData("更新成功");
@@ -119,13 +120,13 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
     }
 
     @Override
-    public RestResult removeApplication(String packageName) {
-        ApplicationInfoEntity applicationInfoEntity = existApplicationInstalled(packageName);
+    public RestResult removeApplication(String packageName, int serverId) {
+        ApplicationInfoEntity applicationInfoEntity = existApplicationInstalled(packageName,serverId);
         if (applicationInfoEntity == null) {
             return RestResult.fromErrorMessage("应用未安装，请选择安装");
         } else {
             String cmd = "yum -y remove " + packageName;
-            boolean result = execYumCmd(cmd);
+            boolean result = execYumCmd(cmd,serverId);
             if (result) {
                 return RestResult.fromData("移除成功");
             } else {
@@ -141,9 +142,11 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         return serverInfoDao.selectList(wrapper);
     }
 
-    private boolean execYumCmd(String cmd) {
+    private boolean execYumCmd(String cmd, int serverId) {
+        ServerInfoEntity serverInfoEntity = serverInfoDao.selectById(serverId);
+        log.info("服务器信息：{}", JSON.toJSONString(serverInfoEntity));
         log.info("更新、安装、保存命令的执行命令：\n" + cmd);
-        String exec = RemoteShellExecutionUtil.exec(cmd);
+        String exec = RemoteShellExecutionUtil.exec(cmd, serverInfoEntity);
         log.info("更新、安装、保存命令的执行结果：\n" + exec);
         if (exec.contains("Complete!")) {
             return true;
@@ -187,8 +190,15 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         }
     }
 
+    /**
+     * 获得内存使用情况
+     *
+     * @param serverId
+     * @return
+     */
     public List<DaskInfoVo> getDiskInfo(int serverId) {
-        String exec = RemoteShellExecutionUtil.exec("df -h");
+        ServerInfoEntity serverInfoEntity = serverInfoDao.selectById(serverId);
+        String exec = RemoteShellExecutionUtil.exec("df -h", serverInfoEntity);
         log.info("服务器信息：\n" + exec);
         String[] split = exec.split("\n");
         List<DaskInfoVo> daskInfoVoList = new ArrayList<>();
@@ -206,9 +216,15 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         return daskInfoVoList;
     }
 
-
+    /**
+     * 获得内存使用情况
+     *
+     * @param serverId
+     * @return
+     */
     public MemoryUsageVo getMemoryUsage(int serverId) {
-        String exec = RemoteShellExecutionUtil.exec("free -m");
+        ServerInfoEntity serverInfoEntity = serverInfoDao.selectById(serverId);
+        String exec = RemoteShellExecutionUtil.exec("free -m", serverInfoEntity);
         log.info("内存使用情况：\n" + exec);
         String[] split = exec.split("\n");
         String[] split1 = split[1].split(RE);
@@ -222,8 +238,16 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         return memoryUsageVo;
     }
 
-    public List<ApplicationInfoEntity> getApplicationList(String cmd, int start) {
-        String exec = RemoteShellExecutionUtil.exec(cmd);
+    /**
+     * 获得应用列表
+     *
+     * @param cmd
+     * @param start
+     * @return
+     */
+    public List<ApplicationInfoEntity> getApplicationList(String cmd, int start, int serverId) {
+        ServerInfoEntity serverInfoEntity = serverInfoDao.selectById(serverId);
+        String exec = RemoteShellExecutionUtil.exec(cmd, serverInfoEntity);
         String[] split = exec.split(RE);
         List<ApplicationInfoEntity> applicationInfoEntityList = new ArrayList<>();
         for (int i = start; i < split.length; i += 3) {
@@ -239,8 +263,15 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoDao, ServerInfo
         return applicationInfoEntityList;
     }
 
-    public ApplicationInfoEntity existApplicationInstalled(String packageName) {
-        String exec = RemoteShellExecutionUtil.exec("yum list installed | grep " + packageName);
+    /**
+     * 校验包是否已经安装
+     *
+     * @param packageName
+     * @return
+     */
+    public ApplicationInfoEntity existApplicationInstalled(String packageName, int serverId) {
+        ServerInfoEntity serverInfoEntity = serverInfoDao.selectById(serverId);
+        String exec = RemoteShellExecutionUtil.exec("yum list installed | grep " + packageName, serverInfoEntity);
         System.out.println("exec = " + exec);
         System.out.println(exec.length());
         System.out.println(exec == null);

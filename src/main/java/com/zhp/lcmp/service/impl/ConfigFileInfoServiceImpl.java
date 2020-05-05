@@ -98,11 +98,15 @@ public class ConfigFileInfoServiceImpl extends ServiceImpl<ConfigFileInfoDao, Co
         Map<String, String> baseInfoMap = getBaseInfo(configCode, userId, serverId);
         log.info("获得配置文件内容的基础信息：{}", JSON.toJSONString(baseInfoMap));
         FileUtil.createDirs(baseInfoMap.get(Constant.BASE_INFO_LOCAL_DIR_PATH));
-        boolean result = RemoteShellExecutionUtil.copyFile(baseInfoMap.get(Constant.BASE_INFO_REMOTE_FILE_PATH), baseInfoMap.get(Constant.BASE_INFO_LOCAL_DIR_PATH));
+        ServerInfoEntity serverInfoEntity = serverInfoDao.selectById(serverId);
+        log.info("获得配置文件内容；服务器信息：{}", JSON.toJSONString(serverInfoEntity));
+        boolean result = RemoteShellExecutionUtil.copyFile(baseInfoMap.get(Constant.BASE_INFO_REMOTE_FILE_PATH), baseInfoMap.get(Constant.BASE_INFO_LOCAL_DIR_PATH), serverInfoEntity);
         if (!result) {
             return null;
         }
-        return FileUtil.readFileContent(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH));
+        String fileContent = FileUtil.readFileContent(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH));
+        FileUtil.deleteFile(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH));
+        return fileContent;
     }
 
     @Override
@@ -110,7 +114,10 @@ public class ConfigFileInfoServiceImpl extends ServiceImpl<ConfigFileInfoDao, Co
         Map<String, String> baseInfoMap = getBaseInfo(configCode, userId, serverId);
         log.info("更新配置文件内容的基础信息：{}", JSON.toJSONString(baseInfoMap));
         FileUtil.wirteFileContent(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH), fileContent);
-        RemoteShellExecutionUtil.putFile(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH), baseInfoMap.get(Constant.BASE_INFO_REMOTE_DIR_PATH));
+        ServerInfoEntity serverInfoEntity = serverInfoDao.selectById(serverId);
+        log.info("更新配置文件内容；服务器信息：{}", JSON.toJSONString(serverInfoEntity));
+        RemoteShellExecutionUtil.putFile(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH), baseInfoMap.get(Constant.BASE_INFO_REMOTE_DIR_PATH), serverInfoEntity);
+        FileUtil.deleteFile(baseInfoMap.get(Constant.BASE_INFO_LOCAL_FILE_PATH));
     }
 
     @Override
@@ -157,8 +164,8 @@ public class ConfigFileInfoServiceImpl extends ServiceImpl<ConfigFileInfoDao, Co
         List<DnsInfoVo> dnsInfoVos = new ArrayList<>(16);
         for (String singleDns : dnsArray) {
             DnsInfoVo dnsInfoVo = new DnsInfoVo();
-            dnsInfoVo.setId(dnsInfoVos.size()+1);
-            dnsInfoVo.setDomain(StringUtils.substringBefore(singleDns," "));
+            dnsInfoVo.setId(dnsInfoVos.size() + 1);
+            dnsInfoVo.setDomain(StringUtils.substringBefore(singleDns, " "));
             dnsInfoVo.setIpAddress(StringUtils.substringAfter(singleDns, " "));
             dnsInfoVos.add(dnsInfoVo);
         }

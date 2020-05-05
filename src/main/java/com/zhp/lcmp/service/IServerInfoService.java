@@ -53,7 +53,7 @@ public interface IServerInfoService extends IService<ServerInfoEntity> {
      * @param pageSize
      * @param status
      */
-    Page<ApplicationInfoEntity> getApplicationListByStatus(int pageNum, int pageSize, String status);
+    Page<ApplicationInfoEntity> getApplicationListByStatus(int pageNum, int pageSize, String status, int serverId);
 
     /**
      * 应用安装
@@ -61,7 +61,7 @@ public interface IServerInfoService extends IService<ServerInfoEntity> {
      * @param packageName
      * @return
      */
-    RestResult installedApplication(String packageName);
+    RestResult installedApplication(String packageName, int serverId);
 
     /**
      * 更新软件包
@@ -69,7 +69,7 @@ public interface IServerInfoService extends IService<ServerInfoEntity> {
      * @param packageName
      * @return
      */
-    RestResult updateApplication(String packageName);
+    RestResult updateApplication(String packageName, int serverId);
 
     /**
      * 移除软件包
@@ -77,7 +77,7 @@ public interface IServerInfoService extends IService<ServerInfoEntity> {
      * @param packageName
      * @return
      */
-    RestResult removeApplication(String packageName);
+    RestResult removeApplication(String packageName, int serverId);
 
     /**
      * 根据用户名和IP获得对应的服务器信息

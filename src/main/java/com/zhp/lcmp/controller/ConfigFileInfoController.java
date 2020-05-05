@@ -45,14 +45,20 @@ public class ConfigFileInfoController {
     public RestResult getConfigFileInfoListByUserIdAndServerId(HttpServletRequest request) {
         Integer userId = RequestUtil.getUserId(request);
         Integer serverId = RequestUtil.getServerId(request);
-        return RestResult.fromData(configFileInfoService.getConfigFileInfoListByUserIdAndServerId(userId, serverId));
+        if (null != userId && null != serverId){
+            return RestResult.fromData(configFileInfoService.getConfigFileInfoListByUserIdAndServerId(userId, serverId));
+        }else {
+            return RestResult.fromErrorMessage("请求失败");
+        }
     }
 
     @ApiOperation("保存或更新配置文件信息")
     @PostMapping("/saveOrUpdateConfigFileInfo")
     public RestResult saveOrUpdateConfigFileInfo(ConfigFileInfoEntity configFileInfoEntity, HttpServletRequest request) {
         Integer userId = RequestUtil.getUserId(request);
+        Integer serverId = RequestUtil.getServerId(request);
         configFileInfoEntity.setUserId(userId);
+        configFileInfoEntity.setServerId(serverId);
         if (null != userId) {
             if (null == configFileInfoEntity.getId()) {
                 return configFileInfoService.saveConfigFileInfo(configFileInfoEntity);
@@ -74,7 +80,6 @@ public class ConfigFileInfoController {
     @ApiOperation("根据ID删除配置文件信息")
     @GetMapping("/deleteConfigFileInfoById")
     public RestResult deleteConfigFileInfoById(@RequestParam("id") Integer id, HttpServletRequest request) {
-
         Integer userId = RequestUtil.getUserId(request);
         if (null != userId) {
             int result = configFileInfoService.deleteConfigFileInfoById(id);
@@ -113,7 +118,7 @@ public class ConfigFileInfoController {
         Integer serverId = RequestUtil.getServerId(request);
         if (null != userId) {
             String configFileContent = configFileInfoService.readConfigFileContent(configCode, userId, serverId);
-            log.info("配置文件内容：{}", configFileContent);
+            // log.info("配置文件内容：{}", configFileContent);
             if (StringUtils.isNotEmpty(configFileContent)) {
                 return RestResult.fromData(configFileContent);
             } else {

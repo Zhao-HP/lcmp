@@ -25,4 +25,5 @@ public interface Constant {
     String BASE_INFO_REMOTE_FILE_PATH = "remoteFilePath";
     String BASE_INFO_LOCAL_FILE_PATH ="localFilePath";
     String BASE_INFO_LOCAL_DIR_PATH="localDirPath";
+    String BASE_INFO_SERVER_INFO="serverInfo";
 }

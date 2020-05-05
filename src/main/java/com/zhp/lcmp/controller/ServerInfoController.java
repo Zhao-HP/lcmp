@@ -33,9 +33,13 @@ public class ServerInfoController {
 
     @ApiOperation("获得服务器使用情况")
     @PostMapping("/getServerUsageInfo")
-    public RestResult getServerUsageInfo(@RequestParam("serverId") int serverId) {
-        log.info("服务器ID：" + serverId);
-        return RestResult.fromData(serverInfoService.getServerUsageInfo(serverId));
+    public RestResult getServerUsageInfo(HttpServletRequest request) {
+        Integer serverId = RequestUtil.getServerId(request);
+        if (null != serverId) {
+            return RestResult.fromData(serverInfoService.getServerUsageInfo(serverId));
+        } else {
+            return RestResult.fromErrorMessage("请求失败");
+        }
     }
 
     @ApiOperation("根据用户ID分页获得该用户的服务器信息")
@@ -59,7 +63,7 @@ public class ServerInfoController {
         if (null != userId) {
             return serverInfoService.saveOrUpdateServerInfoById(serverInfoEntity);
         } else {
-            return RestResult.fromErrorMessage("用户ID为空");
+            return RestResult.fromErrorMessage("请求失败");
         }
     }
 
@@ -70,8 +74,14 @@ public class ServerInfoController {
             @ApiImplicitParam(name = "status", value = "状态", dataType = "String")
     })
     @PostMapping("/getApplicationList")
-    public RestResult getApplicationList(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, @RequestParam("status") String status) {
-        return RestResult.fromData(serverInfoService.getApplicationListByStatus(pageNum, pageSize, status));
+    public RestResult getApplicationList(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize,
+                                         @RequestParam("status") String status, HttpServletRequest request) {
+        Integer serverId = RequestUtil.getServerId(request);
+        if (null != serverId) {
+            return RestResult.fromData(serverInfoService.getApplicationListByStatus(pageNum, pageSize, status, serverId));
+        } else {
+            return RestResult.fromErrorMessage("请求失败");
+        }
     }
 
     @ApiOperation("安装软件包")
@@ -79,8 +89,13 @@ public class ServerInfoController {
             @ApiImplicitParam(name = "packageName", value = "包名", dataType = "String")
     })
     @PostMapping("/installedApplication")
-    public RestResult installedApplication(@RequestParam("packageName") String packageName) {
-        return serverInfoService.installedApplication(packageName);
+    public RestResult installedApplication(@RequestParam("packageName") String packageName, HttpServletRequest request) {
+        Integer serverId = RequestUtil.getServerId(request);
+        if (null != serverId) {
+            return serverInfoService.installedApplication(packageName, serverId);
+        } else {
+            return RestResult.fromErrorMessage("请求失败");
+        }
     }
 
     @ApiOperation("更新软件包")
@@ -88,8 +103,13 @@ public class ServerInfoController {
             @ApiImplicitParam(name = "packageName", value = "包名", dataType = "String")
     })
     @PostMapping("/updateApplication")
-    public RestResult updateApplication(@RequestParam("packageName") String packageName) {
-        return serverInfoService.updateApplication(packageName);
+    public RestResult updateApplication(@RequestParam("packageName") String packageName, HttpServletRequest request) {
+        Integer serverId = RequestUtil.getServerId(request);
+        if (null != serverId) {
+            return serverInfoService.updateApplication(packageName, serverId);
+        } else {
+            return RestResult.fromErrorMessage("请求失败");
+        }
     }
 
     @ApiOperation("移除软件包")
@@ -97,8 +117,13 @@ public class ServerInfoController {
             @ApiImplicitParam(name = "packageName", value = "包名", dataType = "String")
     })
     @PostMapping("/removeApplication")
-    public RestResult removeApplication(@RequestParam("packageName") String packageName) {
-        return serverInfoService.removeApplication(packageName);
+    public RestResult removeApplication(@RequestParam("packageName") String packageName, HttpServletRequest request) {
+        Integer serverId = RequestUtil.getServerId(request);
+        if (null != serverId) {
+            return serverInfoService.removeApplication(packageName, serverId);
+        } else {
+            return RestResult.fromErrorMessage("请求失败");
+        }
     }
 
     @ApiOperation("根据用户名，获得服务器列表")

@@ -1,6 +1,8 @@
 package com.zhp.lcmp.util;
 
 import ch.ethz.ssh2.*;
+import com.alibaba.fastjson.JSON;
+import com.zhp.lcmp.entity.ServerInfoEntity;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -18,12 +20,12 @@ public class RemoteShellExecutionUtil {
     private static Connection connection = null;
     private static final long TIME_OUT = 100000000;
 
-    private static void getConnection() {
+    private static void getConnection(ServerInfoEntity serverInfoEntity) {
         try {
 
-            connection = new Connection("101.201.70.167", 22);
+            connection = new Connection(serverInfoEntity.getIpAddress(), 22);
             connection.connect();
-            boolean isAuthenticate = connection.authenticateWithPassword("root", "guduke0215.");
+            boolean isAuthenticate = connection.authenticateWithPassword(serverInfoEntity.getLoginName(),serverInfoEntity.getLoginPwd());
             if (!isAuthenticate) {
                 throw new Exception("连接失败，请确定用户名和密码是否正确");
             }
@@ -32,9 +34,9 @@ public class RemoteShellExecutionUtil {
         }
     }
 
-    private static void init() {
-        log.info("初始化connection");
-        getConnection();
+    private static void init(ServerInfoEntity serverInfoEntity) {
+        log.info("初始化Connection；服务器参数：{}", JSON.toJSONString(serverInfoEntity));
+        getConnection(serverInfoEntity);
     }
 
     /**
@@ -42,9 +44,9 @@ public class RemoteShellExecutionUtil {
      *
      * @param remotePath
      */
-    public static void getFileProperties(String remotePath) {
+    public static void getFileProperties(String remotePath, ServerInfoEntity serverInfoEntity) {
         try {
-            init();
+            init(serverInfoEntity);
             SFTPv3Client sft = new SFTPv3Client(connection);
             Vector<?> v = sft.ls(remotePath);
             for (int i = 0; i < v.size(); i++) {
@@ -67,8 +69,8 @@ public class RemoteShellExecutionUtil {
      * @param fileName   本地文件
      * @param remotePath 服务器目录
      */
-    public static void putFile(String fileName, String remotePath) {
-        init();
+    public static void putFile(String fileName, String remotePath, ServerInfoEntity serverInfoEntity) {
+        init(serverInfoEntity);
         SCPClient sc = new SCPClient(connection);
         try {
             //将本地文件放到远程服务器指定目录下，默认的文件模式为 0600，即 rw，
@@ -88,8 +90,8 @@ public class RemoteShellExecutionUtil {
      * @param fileName  服务器文件
      * @param localPath 本地目录
      */
-    public static boolean copyFile(String fileName, String localPath){
-        init();
+    public static boolean copyFile(String fileName, String localPath,ServerInfoEntity serverInfoEntity){
+        init(serverInfoEntity);
         SCPClient sc = new SCPClient(connection);
         boolean result = true;
         try {
@@ -109,8 +111,8 @@ public class RemoteShellExecutionUtil {
      * @param[in] fileName 文件名
      * @param[in] remotePath 远程主机的指定目录
      */
-    public void delFile(String remotePath, String fileName) {
-        init();
+    public void delFile(String remotePath, String fileName,ServerInfoEntity serverInfoEntity) {
+        init(serverInfoEntity);
         try {
             SFTPv3Client sft = new SFTPv3Client(connection);
             //获取远程目录下文件列表
@@ -137,11 +139,11 @@ public class RemoteShellExecutionUtil {
      *
      * @param cmds 要在linux上执行的指令
      */
-    public static String exec(String cmds){
+    public static String exec(String cmds, ServerInfoEntity serverInfoEntity){
         InputStream stdOut = null;
         InputStream stdErr = null;
         int ret = -1;
-        init();
+        init(serverInfoEntity);
         StringBuffer buffer = new StringBuffer();
         Session session = null;
         try {
