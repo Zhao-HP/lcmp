@@ -44,4 +44,12 @@ public interface IUserService extends IService<UserEntity> {
      */
     int userRegister(UserEntity userEntity);
 
+    /**
+     * 设置修改密码用的公主码
+     *
+     * @param userId
+     * @return
+     */
+    int setUpdatePasswordCode(Integer userId);
+
 }

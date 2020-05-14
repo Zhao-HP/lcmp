@@ -37,7 +37,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
     @Override
     public int activationAccount(int userId, String identifyingCode) {
         UserEntity userInfo = getUserInfo(userId);
-        if (StringUtils.isEmpty(identifyingCode) || !identifyingCode.equals(userInfo.getIdentifyingCode())){
+        if (StringUtils.isEmpty(identifyingCode) || !identifyingCode.equals(userInfo.getIdentifyingCode())) {
             return 0;
         }
         userInfo.setActivation(true);
@@ -54,7 +54,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
         return insert;
     }
 
-    private void sendActivationMail(String username){
+    private void sendActivationMail(String username) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -68,5 +68,13 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
     @Override
     public UserEntity getUserInfo(Integer userId) {
         return userDao.selectById(userId);
+    }
+
+    @Override
+    public int setUpdatePasswordCode(Integer userId) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setPasswordCode(RandomStringUtils.randomNumeric(6));
+        return this.userDao.updateById(userEntity);
     }
 }

@@ -1,6 +1,7 @@
 package com.zhp.lcmp.dto;
 
 import com.zhp.lcmp.vo.DnsInfoVo;
+import com.zhp.lcmp.vo.IfcfgEth0;
 import lombok.Data;
 
 import java.util.List;
@@ -15,5 +16,6 @@ import java.util.List;
 public class EasyConfigDto {
 
     private List<DnsInfoVo>dnsList;
+    private IfcfgEth0 ethInfo;
     private String configCode;
 }

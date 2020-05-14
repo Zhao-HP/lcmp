@@ -1,12 +1,12 @@
 package com.zhp.lcmp.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.zhp.lcmp.constant.Constant;
 import com.zhp.lcmp.dto.EasyConfigDto;
 import com.zhp.lcmp.entity.ConfigFileInfoEntity;
 import com.zhp.lcmp.service.IConfigFileInfoService;
 import com.zhp.lcmp.service.IServerInfoService;
 import com.zhp.lcmp.util.RequestUtil;
-import com.zhp.lcmp.vo.DnsInfoVo;
 import com.zhp.lcmp.vo.RestResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * 配置文件信息控制层
@@ -45,9 +44,9 @@ public class ConfigFileInfoController {
     public RestResult getConfigFileInfoListByUserIdAndServerId(HttpServletRequest request) {
         Integer userId = RequestUtil.getUserId(request);
         Integer serverId = RequestUtil.getServerId(request);
-        if (null != userId && null != serverId){
+        if (null != userId && null != serverId) {
             return RestResult.fromData(configFileInfoService.getConfigFileInfoListByUserIdAndServerId(userId, serverId));
-        }else {
+        } else {
             return RestResult.fromErrorMessage("请求失败");
         }
     }
@@ -137,23 +136,28 @@ public class ConfigFileInfoController {
     public RestResult getDnsInfoListByServerId(String configCode, HttpServletRequest request) {
         Integer serverId = RequestUtil.getServerId(request);
         if (null != serverId) {
-            List<DnsInfoVo> dnsInfoVoList = configFileInfoService.getDnsInfoListByServerId(configCode, serverId);
-            return RestResult.fromData(dnsInfoVoList);
+            if (Constant.EASY_CONFIG_CONFIG_CODE_DNS.equals(configCode)) {
+                return RestResult.fromData(configFileInfoService.getDnsInfoListByServerId(configCode, serverId));
+            } else if (Constant.EASY_CONFIG_CONFIG_CODE_IFCFG_ETH0.equals(configCode)) {
+                return RestResult.fromData(configFileInfoService.getIfcfgEth0Content(configCode, serverId));
+            } else {
+                return RestResult.fromErrorMessage("暂无此配置码的简易配置功能");
+            }
         } else {
             return RestResult.fromErrorMessage("请求失败");
         }
     }
 
-    @ApiOperation(("更新服务器上的DNS配置文件"))
+    @ApiOperation(("简易配置功能更新服务器上的配置文件"))
     @PostMapping(value = "/updateDnsInfoListByServerId", produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResult updateDnsInfoListByServerId(HttpServletRequest request) {
         Integer serverId = RequestUtil.getServerId(request);
-        if (null != serverId){
+        if (null != serverId) {
             String[] parameterValues = request.getParameterValues("0");
             EasyConfigDto easyConfigDto = JSON.parseObject(parameterValues[0], EasyConfigDto.class);
             configFileInfoService.updateDnsInfoListByServerId(serverId, easyConfigDto);
             return RestResult.fromData("更新成功");
-        }else {
+        } else {
             return RestResult.fromErrorMessage("请求失败");
         }
     }

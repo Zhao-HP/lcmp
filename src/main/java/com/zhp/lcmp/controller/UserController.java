@@ -3,6 +3,7 @@ package com.zhp.lcmp.controller;
 import com.zhp.lcmp.entity.UserEntity;
 import com.zhp.lcmp.service.IServerInfoService;
 import com.zhp.lcmp.service.IUserService;
+import com.zhp.lcmp.util.RequestUtil;
 import com.zhp.lcmp.vo.RestResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -10,7 +11,12 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 用户相关操作的控制层
@@ -38,9 +44,9 @@ public class UserController {
     @GetMapping("/activationAccount")
     public String activationAccount(@RequestParam("userId") int userId, @RequestParam("identifyingCode") String identifyingCode) {
         int result = userService.activationAccount(userId, identifyingCode);
-        if (result > 0){
+        if (result > 0) {
             return "激活成功";
-        }else{
+        } else {
             return "激活失败";
         }
     }
@@ -64,19 +70,35 @@ public class UserController {
 
     @ApiOperation("用户注册")
     @PostMapping("/userRegister")
-    public RestResult userRegister( UserEntity userEntity) {
+    public RestResult userRegister(UserEntity userEntity) {
         UserEntity userInfoByUsername = userService.getUserInfoByNameOrMail(userEntity.getUsername());
         UserEntity userInfoByEmaiil = userService.getUserInfoByNameOrMail(userEntity.getEmail());
         if (null != userInfoByUsername) {
             return RestResult.fromErrorMessage("当前用户名已经存在，请重新输入");
-        }else if (null != userInfoByEmaiil){
+        } else if (null != userInfoByEmaiil) {
             return RestResult.fromErrorMessage("当前邮箱已经和其他用户名绑定，请重新输入");
         }
         int result = userService.userRegister(userEntity);
-        if (result > 0){
+        if (result > 0) {
             return RestResult.fromData("用户注册成功，请前往邮箱激活");
-        }else {
+        } else {
             return RestResult.fromErrorMessage("注册失败");
+        }
+    }
+
+    @ApiOperation("设置修改密码用得的验证码")
+    @PostMapping("/setUpdatePasswordCode")
+    public RestResult setUpdatePasswordCode(HttpServletRequest request) {
+        Integer userId = RequestUtil.getUserId(request);
+        if (null == userId) {
+            int result = userService.setUpdatePasswordCode(userId);
+            if (result > 0) {
+                return RestResult.fromData("验证码已发送至您的邮箱，请查看");
+            } else {
+                return RestResult.fromErrorMessage("验证码发送失败，请重新发送");
+            }
+        } else {
+            return RestResult.fromErrorMessage("请求失败");
         }
     }
 

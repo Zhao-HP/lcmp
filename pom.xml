@@ -24,7 +24,7 @@
         <jedis.version>2.9.0</jedis.version>
         <swagger.version>2.9.2</swagger.version>
         <swagger.ui.version>1.9.6</swagger.ui.version>
-        <fastjson.version>1.2.58</fastjson.version>
+        <fastjson.version>1.1.37</fastjson.version>
         <httpcomponents.version>4.5.5</httpcomponents.version>
         <joda.time.version>2.10.1</joda.time.version>
         <alibaba.druid.version>1.1.18</alibaba.druid.version>
@@ -126,13 +126,6 @@
             <type>pom</type>
         </dependency>
 
-        <!-- p6spy 插件用于sql打印 -->
-        <dependency>
-            <groupId>p6spy</groupId>
-            <artifactId>p6spy</artifactId>
-            <version>${spy.version}</version>
-        </dependency>
-
         <!--远程命令执行-->
         <dependency>
             <groupId>ch.ethz.ganymed</groupId>
@@ -140,13 +133,6 @@
             <version>${ganymed.version}</version>
         </dependency>
 
-        <!--Junit-->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>

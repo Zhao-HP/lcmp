@@ -23,7 +23,21 @@ public interface Constant {
     String BASE_INFO_PASSWORD = "password";
     String BASE_INFO_REMOTE_DIR_PATH = "remoteDirPath";
     String BASE_INFO_REMOTE_FILE_PATH = "remoteFilePath";
-    String BASE_INFO_LOCAL_FILE_PATH ="localFilePath";
-    String BASE_INFO_LOCAL_DIR_PATH="localDirPath";
-    String BASE_INFO_SERVER_INFO="serverInfo";
+    String BASE_INFO_LOCAL_FILE_PATH = "localFilePath";
+    String BASE_INFO_LOCAL_DIR_PATH = "localDirPath";
+    String BASE_INFO_SERVER_INFO = "serverInfo";
+
+    String EASY_CONFIG_CONFIG_CODE_DNS = "DNS";
+    String EASY_CONFIG_CONFIG_CODE_IFCFG_ETH0 = "ifcfg-eth0";
+
+    String IFCFG_ETH0_PARAM_DEVICE = "DEVICE";
+    String IFCFG_ETH0_PARAM_ONBOOT = "ONBOOT";
+    String IFCFG_ETH0_PARAM_BOOTPROTO = "BOOTPROTO";
+    String IFCFG_ETH0_PARAM_HWADDR = "HWADDR";
+    String IFCFG_ETH0_PARAM_IPADDR = "IPADDR";
+    String IFCFG_ETH0_PARAM_NETMASK = "NETMASK";
+    String IFCFG_ETH0_PARAM_GATEWAY = "GATEWAY";
+    String IFCFG_ETH0_PARAM_DNS1 = "DNS1";
+    String IFCFG_ETH0_PARAM_DNS2 = "DNS2";
+
 }

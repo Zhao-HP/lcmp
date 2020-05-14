@@ -46,4 +46,9 @@ public class UserEntity implements Serializable {
      * 随机产生的验证码
      */
     private String identifyingCode;
+
+    /**
+     * 修改密码的验证码
+     */
+    private String passwordCode;
 }

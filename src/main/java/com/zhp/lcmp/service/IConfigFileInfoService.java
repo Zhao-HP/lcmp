@@ -6,6 +6,7 @@ import com.zhp.lcmp.dto.EasyConfigDto;
 import com.zhp.lcmp.entity.ConfigFileInfoEntity;
 import com.zhp.lcmp.vo.ConfigFileListVo;
 import com.zhp.lcmp.vo.DnsInfoVo;
+import com.zhp.lcmp.vo.IfcfgEth0;
 import com.zhp.lcmp.vo.RestResult;
 
 import java.util.List;
@@ -80,6 +81,14 @@ public interface IConfigFileInfoService extends IService<ConfigFileInfoEntity> {
     List<DnsInfoVo> getDnsInfoListByServerId(String configCode, Integer serverId);
 
     /**
+     * 获得ifcfg-eth0的内容
+     * @param configCode
+     * @param serverId
+     * @return
+     */
+    IfcfgEth0 getIfcfgEth0Content(String configCode, Integer serverId);
+
+    /**
      * 根据配置码获得配置文件内容
      *
      * @param configCode
@@ -100,7 +109,8 @@ public interface IConfigFileInfoService extends IService<ConfigFileInfoEntity> {
     void updateConfigFileContent(Integer userId, Integer serverId, String configCode, String fileContent);
 
     /**
-     * 更新服务器上DNS配置文件
+     * 简易配置修改文件内容
+     *
      * @param serverId
      * @param easyConfigDto
      */
